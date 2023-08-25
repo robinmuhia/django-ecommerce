@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'core',
     'item',
     'dashboard',
+    'communication',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
