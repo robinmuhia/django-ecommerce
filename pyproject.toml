@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "ecommerce"
+version = "0.1.0"
+description = "An ecommerce shop"
+authors = ["robinmuhia <muhiarobinonyancha@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+asgiref = "3.7.2"
+Django = "4.2.4"
+django-cleanup = "8.0.0"
+django-cors-headers = "4.2.0"
+django-environ = "0.11.2"
+djangorestframework = "3.14.0"
+Pillow= "10.0.0"
+pytz= "2023.3"
+sqlparse = "0.4.4"
+tzdata = "2023.3"
+pendulum = "^2.1.2"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "2.20.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+target-version = ['py39']
+include = '\.pyi?$'
+skip-string-normalization = true
