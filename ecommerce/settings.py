@@ -10,22 +10,40 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
+import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+env_file = os.path.join(BASE_DIR, ".env")
+env = environ.Env()
+env.read_env(env_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9t=mof=d=56!_0bk25dob-!1j+p&5xib31%+6-h-=j8)pxve8@'
+SECRET_KEY = env('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', cast=bool, default=True)
 
-ALLOWED_HOSTS = []
+IS_PRODUCTION = env('IS_PRODUCTION', cast=bool, default=False)
+
+ALLOWED_HOSTS = ['*']
+
+FRONTEND_HOST = env('FRONTEND_HOST')
+
+# CORS settingss
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=["https://*.ecommerce.com", "http://*.127.0.0.1"],
+)
+CORS_ORIGIN_ALLOW_ALL = True
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SITE_ID = 1
+
 
 LOGIN_URL ='/login'
 LOGIN_REDIRECT_URL='/'
@@ -43,12 +61,15 @@ INSTALLED_APPS = [
     'item',
     'dashboard',
     'communication',
+    'rest_framework',
+    "corsheaders",
     'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -87,6 +108,16 @@ DATABASES = {
     }
 }
 
+# email configs
+EMAIL_HOST = env.str('EMAIL_HOST')
+EMAIL_BACKEND = env.str('EMAIL_BACKEND')
+EMAIL_PORT = env.int('EMAIL_PORT')
+EMAIL_USE_TLS = env.bool('EMAIL_PORT', default=True)
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env.str(
+    'DEFAULT_FROM_EMAIL', default='admin@kaiandkaro.com'
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -130,3 +161,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# disable browsable api in production
+DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    )
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ),
+    "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES,
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+}

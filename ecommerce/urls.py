@@ -10,4 +10,5 @@ urlpatterns = [
     path('dashboard/',include('dashboard.urls')),
     path('inbox/',include('communication.urls')),
     path('admin/', admin.site.urls),
+    path('api/v1/',include('core.api.v1.urls'))
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
