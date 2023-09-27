@@ -1,6 +1,6 @@
 # Simple ecommerce Backend System
 
-> Main Repository for Backend Web App and API for Kai and Karo
+> Main Repository for Backend Web App and API for an ecommerce
 
 1. [Requirements](#requirements)
 2. [Setup](#setup)
